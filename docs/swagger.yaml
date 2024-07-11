@@ -1,0 +1,1182 @@
+basePath: /v1
+definitions:
+  handler.AttendanceReportResponse:
+    properties:
+      absent_in:
+        type: string
+      absent_out:
+        type: string
+      date:
+        type: string
+      department_name:
+        type: string
+      employee_code:
+        type: string
+      employee_name:
+        type: string
+      location_name:
+        type: string
+      position_name:
+        type: string
+    type: object
+  handler.AttendanceResponse:
+    properties:
+      absent_in:
+        type: string
+      absent_out:
+        type: string
+      attendance_id:
+        type: integer
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      employee_id:
+        type: integer
+      location_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  handler.DepartmentResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        type: string
+      department_id:
+        type: integer
+      department_name:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  handler.EmployeeResponse:
+    properties:
+      department_id:
+        type: integer
+      email:
+        type: string
+      employee_code:
+        type: string
+      employee_name:
+        type: string
+      id:
+        type: integer
+      position_id:
+        type: integer
+      superior:
+        type: integer
+    type: object
+  handler.LocationResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        type: string
+      location_id:
+        type: integer
+      location_name:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  handler.LoginRequest:
+    properties:
+      employee_name:
+        example: John Doe
+        type: string
+      password:
+        example: "123456"
+        minLength: 6
+        type: string
+    required:
+    - employee_name
+    - password
+    type: object
+  handler.PositionResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        type: string
+      department_id:
+        type: integer
+      position_id:
+        type: integer
+      position_name:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  handler.RegisterRequest:
+    properties:
+      created_by:
+        example: admin
+        type: string
+      department_id:
+        example: 1
+        type: integer
+      employee_name:
+        example: John Doe
+        type: string
+      password:
+        example: "123456"
+        minLength: 6
+        type: string
+      position_id:
+        example: 1
+        type: integer
+      superior:
+        example: 1
+        type: integer
+    required:
+    - created_by
+    - department_id
+    - employee_name
+    - password
+    - position_id
+    - superior
+    type: object
+  handler.UpdateRequest:
+    properties:
+      department_id:
+        example: 1
+        type: integer
+      employee_name:
+        example: John Doe
+        type: string
+      password:
+        example: "123456"
+        minLength: 6
+        type: string
+      position_id:
+        example: 1
+        type: integer
+      superior:
+        example: 1
+        type: integer
+      updated_by:
+        example: admin
+        type: string
+    required:
+    - department_id
+    - employee_name
+    - password
+    - position_id
+    - superior
+    - updated_by
+    type: object
+  handler.authResponse:
+    properties:
+      token:
+        example: eGdh5kiOTyyaQ3_bNykYDeYHO21Jg2...
+        type: string
+    type: object
+  utils.ErrorResponse:
+    properties:
+      messages:
+        example:
+        - Error message 1
+        - ' Error message 2'
+        items:
+          type: string
+        type: array
+      success:
+        example: false
+        type: boolean
+    type: object
+  utils.Response:
+    properties:
+      data: {}
+      message:
+        example: Success
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+info:
+  contact:
+    email: roihansori12@gmail.com
+    name: Roihan Sori
+  description: This is a simple RESTful CRM Service API written in Go using fiber
+    web framework, PostgreSQL database
+  license:
+    name: MIT
+  title: CRM API
+  version: "1.0"
+paths:
+  /attendance/reports:
+    get:
+      consumes:
+      - application/json
+      description: Get attendance reports within a time range
+      parameters:
+      - description: Start time (RFC3339 format)
+        in: query
+        name: startTime
+        required: true
+        type: string
+      - description: End time (RFC3339 format)
+        in: query
+        name: endTime
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attendance reports
+          schema:
+            items:
+              $ref: '#/definitions/handler.AttendanceReportResponse'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get Attendance Reports
+      tags:
+      - Attendance
+  /attendances:
+    get:
+      consumes:
+      - application/json
+      description: List Attendances
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attendances retrieved
+          schema:
+            items:
+              $ref: '#/definitions/handler.AttendanceResponse'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List Attendances
+      tags:
+      - Attendances
+    post:
+      description: create a new Attendance with employee_id, location_id, absent_in,
+        and absent_out
+      parameters:
+      - example: "2024-07-11T08:00:00Z"
+        in: formData
+        name: absent_in
+        required: true
+        type: string
+      - example: "2024-07-11T17:00:00Z"
+        in: formData
+        name: absent_out
+        required: true
+        type: string
+      - example: Admin
+        in: formData
+        name: created_by
+        required: true
+        type: string
+      - example: 1
+        in: formData
+        name: employee_id
+        required: true
+        type: integer
+      - example: 1
+        in: formData
+        name: location_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attendance created
+          schema:
+            $ref: '#/definitions/handler.AttendanceResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new Attendance
+      tags:
+      - Attendances
+  /attendances/{attendanceId}:
+    delete:
+      consumes:
+      - application/json
+      description: delete an Attendance by id
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: attendanceId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attendance deleted
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete an Attendance
+      tags:
+      - Attendances
+    get:
+      consumes:
+      - application/json
+      description: get an Attendance by id
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: attendanceId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attendance retrieved
+          schema:
+            $ref: '#/definitions/handler.AttendanceResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get an Attendance
+      tags:
+      - Attendances
+    put:
+      description: update an Attendance with employee_id, location_id, absent_in,
+        and absent_out
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: attendanceId
+        required: true
+        type: integer
+      - example: "2024-07-11T08:00:00Z"
+        in: formData
+        name: absent_in
+        required: true
+        type: string
+      - example: "2024-07-11T17:00:00Z"
+        in: formData
+        name: absent_out
+        required: true
+        type: string
+      - example: 1
+        in: formData
+        name: employee_id
+        required: true
+        type: integer
+      - example: 1
+        in: formData
+        name: location_id
+        required: true
+        type: integer
+      - example: Admin
+        in: formData
+        name: updated_by
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attendance updated
+          schema:
+            $ref: '#/definitions/handler.AttendanceResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an Attendance
+      tags:
+      - Attendances
+  /departments:
+    get:
+      consumes:
+      - application/json
+      description: List departments
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Departments retrieved
+          schema:
+            items:
+              $ref: '#/definitions/handler.DepartmentResponse'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List departments
+      tags:
+      - Departments
+    post:
+      description: create a new department with title and description
+      parameters:
+      - example: Admin
+        in: formData
+        name: created_by
+        required: true
+        type: string
+      - example: Finance
+        in: formData
+        name: department_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Department created
+          schema:
+            $ref: '#/definitions/handler.DepartmentResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new department
+      tags:
+      - Departments
+  /departments/{departmentId}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a department by id
+      parameters:
+      - description: Department ID
+        in: path
+        name: departmentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Department deleted
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a department
+      tags:
+      - Departments
+    get:
+      consumes:
+      - application/json
+      description: get a department by id
+      parameters:
+      - description: Department ID
+        in: path
+        name: departmentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Department retrieved
+          schema:
+            $ref: '#/definitions/handler.DepartmentResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a department
+      tags:
+      - Departments
+    put:
+      description: update a department with title and description
+      parameters:
+      - description: Department ID
+        in: path
+        name: departmentId
+        required: true
+        type: integer
+      - example: Finance
+        in: formData
+        name: department_name
+        required: true
+        type: string
+      - example: Admin
+        in: formData
+        name: updated_by
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Department updated
+          schema:
+            $ref: '#/definitions/handler.DepartmentResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a department
+      tags:
+      - Departments
+  /employees:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an employee
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Employee deleted
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Forbidden error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete an employee
+      tags:
+      - Employees
+    get:
+      consumes:
+      - application/json
+      description: Get a profile employee
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile Employee displayed
+          schema:
+            $ref: '#/definitions/handler.EmployeeResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get an employee
+      tags:
+      - Employees
+    put:
+      consumes:
+      - application/json
+      description: Update an employee's username, email, password, age
+      parameters:
+      - description: Update employee request
+        in: body
+        name: updateEmployeeRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Employee updated
+          schema:
+            $ref: '#/definitions/handler.EmployeeResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Forbidden error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an employee
+      tags:
+      - Employees
+  /employees/login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a registered employee and returns an access token if the
+        credentials are valid.
+      parameters:
+      - description: Login request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Succesfully logged in
+          schema:
+            $ref: '#/definitions/handler.authResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Login and get an access token
+      tags:
+      - Employees
+  /employees/register:
+    post:
+      consumes:
+      - application/json
+      description: create a new employee account
+      parameters:
+      - description: Register request
+        in: body
+        name: registerRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Employee created
+          schema:
+            $ref: '#/definitions/handler.EmployeeResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "409":
+          description: Data conflict error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Register a new employee
+      tags:
+      - Employees
+  /locations:
+    get:
+      consumes:
+      - application/json
+      description: List Locations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Locations retrieved
+          schema:
+            items:
+              $ref: '#/definitions/handler.LocationResponse'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List Locations
+      tags:
+      - Locations
+    post:
+      description: create a new Location with title and description
+      parameters:
+      - example: Admin
+        in: formData
+        name: created_by
+        required: true
+        type: string
+      - example: Finance
+        in: formData
+        name: location_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Location created
+          schema:
+            $ref: '#/definitions/handler.LocationResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new Location
+      tags:
+      - Locations
+  /locations/{locationId}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a Location by id
+      parameters:
+      - description: Location ID
+        in: path
+        name: locationId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Location deleted
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a Location
+      tags:
+      - Locations
+    get:
+      consumes:
+      - application/json
+      description: get a Location by id
+      parameters:
+      - description: Location ID
+        in: path
+        name: locationId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Location retrieved
+          schema:
+            $ref: '#/definitions/handler.LocationResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a Location
+      tags:
+      - Locations
+    put:
+      description: update a Location with title and description
+      parameters:
+      - description: Location ID
+        in: path
+        name: locationId
+        required: true
+        type: integer
+      - example: Finance
+        in: formData
+        name: location_name
+        required: true
+        type: string
+      - example: Admin
+        in: formData
+        name: updated_by
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Location updated
+          schema:
+            $ref: '#/definitions/handler.LocationResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a Location
+      tags:
+      - Locations
+  /positions:
+    get:
+      consumes:
+      - application/json
+      description: List Positions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Positions retrieved
+          schema:
+            items:
+              $ref: '#/definitions/handler.PositionResponse'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List Positions
+      tags:
+      - Positions
+    post:
+      description: create a new Position with title and description
+      parameters:
+      - example: Admin
+        in: formData
+        name: created_by
+        required: true
+        type: string
+      - example: "1"
+        in: formData
+        name: department_id
+        required: true
+        type: string
+      - example: Finance
+        in: formData
+        name: position_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Position created
+          schema:
+            $ref: '#/definitions/handler.PositionResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new Position
+      tags:
+      - Positions
+  /positions/{positionId}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a Position by id
+      parameters:
+      - description: Position ID
+        in: path
+        name: positionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Position deleted
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a Position
+      tags:
+      - Positions
+    get:
+      consumes:
+      - application/json
+      description: get a Position by id
+      parameters:
+      - description: Position ID
+        in: path
+        name: positionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Position retrieved
+          schema:
+            $ref: '#/definitions/handler.PositionResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a Position
+      tags:
+      - Positions
+    put:
+      description: update a Position with title and description
+      parameters:
+      - description: Position ID
+        in: path
+        name: positionId
+        required: true
+        type: integer
+      - example: "1"
+        in: formData
+        name: department_id
+        required: true
+        type: string
+      - example: Finance
+        in: formData
+        name: position_name
+        required: true
+        type: string
+      - example: Admin
+        in: formData
+        name: updated_by
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Position updated
+          schema:
+            $ref: '#/definitions/handler.PositionResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Data not found error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a Position
+      tags:
+      - Positions
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the access token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
