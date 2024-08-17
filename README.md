@@ -1,5 +1,4 @@
-# technical-test-crm
-
+# go attendence system
 URL Swagger Docs : http://localhost:5000/docs/index.html
 
 # Run Locally
